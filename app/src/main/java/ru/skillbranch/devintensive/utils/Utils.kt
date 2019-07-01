@@ -1,7 +1,5 @@
 package ru.skillbranch.devintensive.utils
 
-import android.text.TextUtils.isEmpty
-
 object Utils {
     fun parseFullName(fullName: String?): Pair<String?, String?> {
         val parts: List<String>? = fullName?.split(" ")
@@ -141,22 +139,18 @@ object Utils {
         val str = StringBuilder()
 
         when {
-            firstName.isNullOrBlank() -> {
-            }
-            firstName.isNullOrEmpty() -> {
-            }
+            firstName.isNullOrBlank() -> {}
+            firstName.isNullOrEmpty() -> {}
             else -> str.append("$firstName".substring(0, 1).capitalize())
         }
 
         when {
-            lastName.isNullOrBlank() -> {
-            }
-            lastName.isNullOrEmpty() -> {
-            }
+            lastName.isNullOrBlank() -> {}
+            lastName.isNullOrEmpty() -> {}
             else -> str.append("$lastName".substring(0, 1).capitalize())
         }
         return if (str.isEmpty())
-            "null"
+            null
         else
             str.toString()
 

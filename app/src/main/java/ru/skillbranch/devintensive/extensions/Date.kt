@@ -28,9 +28,9 @@ fun Date.add(value: Int, units: TimeUnits = TimeUnits.SECOND) :Date {
     return this
 }
 
-fun Date.humanizeDiff(date: Date = Date()): String {
-    TODO("not implemented")
-    /*
+fun Date.humanizeDiff(): String {
+
+
 
         var newSec: Int = ((Date().time - this.time) / 1000).toInt()
         val isFuture:Boolean
@@ -114,7 +114,7 @@ fun Date.humanizeDiff(date: Date = Date()): String {
             number % 10 == 1 -> oneFormat.format(number)
             number % 10 in 2..4 -> fewFormat.format(number)
             else -> manyFormat.format(number)
-        } */
+        }
     }
 
 

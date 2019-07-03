@@ -120,8 +120,12 @@ fun Date.humanizeDiff(): String {
 
 
 enum class TimeUnits {
-    SECOND,
-    MINUTE,
-    HOUR,
-    DAY,
+
+        SECOND,
+        MINUTE,
+        HOUR,
+        DAY,
+
 }
+
+

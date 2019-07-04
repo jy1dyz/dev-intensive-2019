@@ -124,7 +124,21 @@ enum class TimeUnits {
         SECOND,
         MINUTE,
         HOUR,
-        DAY,
+        DAY;
+    fun plural(num:Int):String {
+
+        val vocabulary:HashMap<String,Array<String>> = HashMap()
+        vocabulary["DAY"] = arrayOf("день","дня","дней")
+        vocabulary["HOUR"] = arrayOf("час","часа","часов")
+        vocabulary["MINUTE"] = arrayOf("минуту","минуты","минут")
+        vocabulary["SECOND"] = arrayOf("секунду","секунды","секунд")
+        return when(num%10) {
+
+            1 -> "$num ${vocabulary[this.name]!![0]}"
+            in 2..4 -> "$num ${vocabulary[this.name]!![1]}"
+            else -> "$num ${vocabulary[this.name]!![2]}"
+        }
+    }
 
 }
 

@@ -7,8 +7,10 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.os.PersistableBundle
+import android.text.InputType
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -16,6 +18,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import ru.skillbranch.devintensive.models.Bender
 
 
+@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class MainActivity() : AppCompatActivity(), View.OnClickListener {
     lateinit var benderImage:ImageView
     lateinit var textTxt:TextView
@@ -50,7 +53,7 @@ class MainActivity() : AppCompatActivity(), View.OnClickListener {
         messageEt = et_message
         sendBtn = iv_send
 
-
+        makeSendOnActionDone(messageEt)
         val status = savedInstanceState?.getString("STATUS") ?: Bender.Status.NORMAL.name
         val question = savedInstanceState?.getString("QUESTION") ?: Bender.Question.NAME.name
         benderObj = Bender(Bender.Status.valueOf(status), Bender.Question.valueOf(question))
@@ -62,6 +65,14 @@ class MainActivity() : AppCompatActivity(), View.OnClickListener {
 
         textTxt.text = benderObj.askQuestion()
         sendBtn.setOnClickListener(this)
+    }
+
+    private fun makeSendOnActionDone(editText: EditText?) {
+        editText?.setRawInputType(InputType.TYPE_CLASS_TEXT)
+        editText?.setOnEditorActionListener{ _, actionId, _ ->
+            if(actionId == EditorInfo.IME_ACTION_DONE) sendBtn.performClick()
+            false
+        }
     }
 
     /**

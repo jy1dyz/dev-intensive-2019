@@ -1,6 +1,8 @@
 package ru.skillbranch.devintensive
 
+import android.annotation.SuppressLint
 import android.graphics.Color
+import android.graphics.ColorFilter
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -188,12 +190,37 @@ class MainActivity() : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         if(v?.id == R.id.iv_send) {
-            val (phrase, color) = benderObj.listenAnswer(messageEt.text.toString().toLowerCase())
-            messageEt.setText("")
-            val (r,g,b) = color
-            benderImage.setColorFilter(Color.rgb(r,g,b), PorterDuff.Mode.MULTIPLY)
-            textTxt.text = phrase
+            if(isAnswerValid())
+                sendAnswer()
+            else makeErrorMessage()
         }
     }
 
+
+    @SuppressLint("SetTextI18n")
+    private fun makeErrorMessage() {
+        val errorMessage = when(benderObj.question){
+            Bender.Question.NAME -> "Имя должно начинаться с заглавной буквы"
+            Bender.Question.PROFESSION -> "Профессия должна начинаться со строчной буквы"
+            Bender.Question.MATERIAL -> "Материал не дожен содержать цифр"
+            Bender.Question.BDAY -> "Год моего рождения должен содержать только цифры"
+            Bender.Question.SERIAL -> "Серийный номер содержит только цифры, и их 7"
+            else -> "На этом всеЮ вопросов больше нет"
+
+        }
+        textTxt.text = errorMessage + "\n" +benderObj.question.question
+        messageEt.setText("")
+    }
+
+    private fun isAnswerValid():Boolean{
+        return benderObj.question.validate(messageEt.text.toString())
+    }
+
+    private fun sendAnswer() {
+        val (phase, color) = benderObj.listenAnswer(messageEt.text.toString().toLowerCase())
+        messageEt.setText("")
+        val(r,g,b) = color
+        benderImage.setColorFilter(Color.rgb(r,g,b), PorterDuff.Mode.MULTIPLY)
+        textTxt.text = phase
+    }
 }

@@ -25,6 +25,6 @@ fun Activity.isKeyboardClosed(): Boolean {
     val visibleBounds = Rect()
     val rootView = this.window.decorView
     rootView.getWindowVisibleDisplayFrame(visibleBounds)
-    val keybardHeight = rootView.height - visibleBounds.bottom
-    return keybardHeight == 0
+    val keyboardHeight = rootView.height - visibleBounds.bottom
+    return keyboardHeight == 0
 }

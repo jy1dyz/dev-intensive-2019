@@ -1,27 +1,26 @@
 package ru.skillbranch.devintensive
 
-import android.annotation.SuppressLint
+
 import android.graphics.Color
-import android.graphics.ColorFilter
+
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
-import android.os.PersistableBundle
-import android.text.InputType
+
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
+import ru.skillbranch.devintensive.extensions.hideKeyboard
 import ru.skillbranch.devintensive.models.Bender
 
 
-@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-class MainActivity() : AppCompatActivity(), View.OnClickListener {
+
+class MainActivity() : AppCompatActivity(), View.OnClickListener, TextView.OnEditorActionListener {
     lateinit var benderImage:ImageView
     lateinit var textTxt:TextView
     lateinit var messageEt:EditText
@@ -49,33 +48,21 @@ class MainActivity() : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-            benderImage = findViewById<ImageView>(R.id.iv_bender)
         benderImage = iv_bender
         textTxt = tv_text
         messageEt = et_message
         sendBtn = iv_send
 
-        makeSendOnActionDone(messageEt)
         val status = savedInstanceState?.getString("STATUS") ?: Bender.Status.NORMAL.name
         val question = savedInstanceState?.getString("QUESTION") ?: Bender.Question.NAME.name
         benderObj = Bender(Bender.Status.valueOf(status), Bender.Question.valueOf(question))
 
-        Log.d("M_MainActivity", "onCreate $status $question")
+        Log.d("M_MainActivity:", "onCreate $status $question")
 
-        val (r,g,b) = benderObj.status.color
-        benderImage.setColorFilter(Color.rgb(r,g,b), PorterDuff.Mode.MULTIPLY)
-
-        textTxt.text = benderObj.askQuestion()
-        sendBtn.setOnClickListener(this)
+        prepareUI()
     }
 
-    private fun makeSendOnActionDone(editText: EditText?) {
-        editText?.setRawInputType(InputType.TYPE_CLASS_TEXT)
-        editText?.setOnEditorActionListener{ _, actionId, _ ->
-            if(actionId == EditorInfo.IME_ACTION_DONE) sendBtn.performClick()
-            false
-        }
-    }
+
 
     /**
      * Если Activity возвращается в приоритетный режим после вызова onStop(),
@@ -180,47 +167,44 @@ class MainActivity() : AppCompatActivity(), View.OnClickListener {
      * Не будет вызван, если Activity будет явно закрыто пользователем при нажатии на системную кнопку back
      */
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-
-        outState?.putString("STATUS", benderObj.status.name)
-        outState?.putString("QUESTION", benderObj.question.name)
-        Log.d("M_MainActivity", "onSaveInstanceState ${benderObj.status.name} ${benderObj.question.name}")
+        benderObj.saveState(outState)
     }
 
     override fun onClick(v: View?) {
-        if(v?.id == R.id.iv_send) {
-            if(isAnswerValid())
-                sendAnswer()
-            else makeErrorMessage()
+        if (v?.id == R.id.iv_send) {
+            sendMessage()
         }
     }
 
-
-    @SuppressLint("SetTextI18n")
-    private fun makeErrorMessage() {
-        val errorMessage = when(benderObj.question){
-            Bender.Question.NAME -> "Имя должно начинаться с заглавной буквы"
-            Bender.Question.PROFESSION -> "Профессия должна начинаться со строчной буквы"
-            Bender.Question.MATERIAL -> "Материал не дожен содержать цифр"
-            Bender.Question.BDAY -> "Год моего рождения должен содержать только цифры"
-            Bender.Question.SERIAL -> "Серийный номер содержит только цифры, и их 7"
-            else -> "На этом всеЮ вопросов больше нет"
-
+    override fun onEditorAction(textView: TextView?, id: Int, keyEvent: KeyEvent?): Boolean {
+        if (id == EditorInfo.IME_ACTION_DONE) {
+            sendMessage()
+            return true
         }
-        textTxt.text = errorMessage + "\n" +benderObj.question.question
-        messageEt.setText("")
+        return false
     }
 
-    private fun isAnswerValid():Boolean{
-        return benderObj.question.validate(messageEt.text.toString())
+    private fun prepareUI() {
+        changeBenderColor(benderObj.status.color)
+
+        textTxt.text = benderObj.askQuestion()
+        sendBtn.setOnClickListener(this)
+        messageEt.setOnEditorActionListener(this)
     }
 
-    private fun sendAnswer() {
-        val (phase, color) = benderObj.listenAnswer(messageEt.text.toString().toLowerCase())
+    private fun changeBenderColor(color: Triple<Int, Int, Int>) {
+        val (r, g, b) = color
+        benderImage.setColorFilter(Color.rgb(r, g, b), PorterDuff.Mode.MULTIPLY)
+    }
+
+    private fun sendMessage() {
+        this.hideKeyboard()
+        val (phrase, color) = benderObj.listenAnswer(messageEt.text.toString())
         messageEt.setText("")
-        val(r,g,b) = color
-        benderImage.setColorFilter(Color.rgb(r,g,b), PorterDuff.Mode.MULTIPLY)
-        textTxt.text = phase
+
+        changeBenderColor(color)
+        textTxt.text = phrase
     }
 }
